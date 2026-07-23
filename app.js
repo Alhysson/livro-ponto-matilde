@@ -10,6 +10,7 @@ const state = {
   matricula: "",
   funcao: "",
   horario: "",
+  instituicao: "",
   hasAlmoco: true,
   isEstagiario: false,
   mes: 2, // Fevereiro padrão
@@ -68,6 +69,7 @@ function initDOM() {
   document.getElementById("input-nome").value = state.nome;
   document.getElementById("input-matricula").value = state.matricula;
   document.getElementById("input-funcao").value = state.funcao;
+  document.getElementById("input-instituicao").value = state.instituicao;
   document.getElementById("input-horario").value = state.horario;
   document.getElementById("checkbox-almoco").checked = state.hasAlmoco;
   document.getElementById("checkbox-estagiario").checked = state.isEstagiario;
@@ -117,6 +119,10 @@ function initEvents() {
     state.funcao = e.target.value;
     renderPreview();
   });
+  document.getElementById("input-instituicao").addEventListener("input", (e) => {
+    state.instituicao = e.target.value;
+    renderPreview();
+  });
   document.getElementById("input-horario").addEventListener("input", (e) => {
     state.horario = e.target.value;
     renderPreview();
@@ -134,15 +140,18 @@ function initEvents() {
     // Altera visibilidade dos campos específicos
     const groupAlmoco = document.getElementById("group-almoco");
     const groupFuncao = document.getElementById("group-funcao");
+    const groupInstituicao = document.getElementById("group-instituicao");
     const paperSheet = document.getElementById("paper-sheet");
 
     if (state.isEstagiario) {
       groupAlmoco.style.display = "none";
       groupFuncao.style.display = "none";
+      groupInstituicao.style.display = "flex";
       paperSheet.className = "paper-sheet portrait";
     } else {
       groupAlmoco.style.display = "block";
       groupFuncao.style.display = "flex";
+      groupInstituicao.style.display = "none";
       paperSheet.className = "paper-sheet landscape";
     }
     
@@ -372,6 +381,9 @@ function renderPreview() {
     infoBox.innerHTML = `
       <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-bottom: none;">
         <strong>Servidor Estagiário:</strong> ${nomeUpper || "&nbsp;"}
+      </div>
+      <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-top: 0.8pt solid #000; border-bottom: none;">
+        <strong>Instituição de Ensino Superior:</strong> ${state.instituicao.toUpperCase() || "&nbsp;"}
       </div>
       <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-top: 0.8pt solid #000; border-bottom: none;">
         <strong>Número Matrícula:</strong> ${state.matricula || "&nbsp;"} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Horário:</strong> ${state.horario || "&nbsp;"}
@@ -624,7 +636,7 @@ function generatePDF() {
 
   // --- 2. DADOS DO SERVIDOR (Info Box) ---
   const infoBoxY = state.isEstagiario ? topMargin + 120 : topMargin + 65;
-  const infoBoxH = state.isEstagiario ? 54 : 34; // 3 linhas em paisagem vs 3 linhas em retrato
+  const infoBoxH = state.isEstagiario ? 72 : 34; // 4 linhas em retrato vs 3 linhas em paisagem
 
   doc.setLineWidth(0.8);
   doc.rect(leftMargin, infoBoxY, usableW, infoBoxH);
@@ -639,16 +651,20 @@ function generatePDF() {
   if (state.isEstagiario) {
     // Linha 1: Servidor Estagiário: [Nome]
     doc.setFontSize(12);
-    doc.text(`Servidor Estagiário: ${nomeUpper}`, pageW / 2, infoBoxY + 16, { align: "center" });
+    doc.text(`Servidor Estagiário: ${nomeUpper}`, pageW / 2, infoBoxY + 14, { align: "center" });
     
-    // Linha 2: Matrícula e Horário
-    doc.line(leftMargin, infoBoxY + 24, pageW - rightMargin, infoBoxY + 24);
-    doc.text(`Número Matrícula: ${state.matricula}                Horário: ${state.horario}`, pageW / 2, infoBoxY + 36, { align: "center" });
+    // Linha 2: Instituição de Ensino Superior
+    doc.line(leftMargin, infoBoxY + 18, pageW - rightMargin, infoBoxY + 18);
+    doc.text(`Instituição de Ensino Superior: ${state.instituicao.toUpperCase()}`, pageW / 2, infoBoxY + 30, { align: "center" });
+
+    // Linha 3: Matrícula e Horário
+    doc.line(leftMargin, infoBoxY + 36, pageW - rightMargin, infoBoxY + 36);
+    doc.text(`Número Matrícula: ${state.matricula}                Horário: ${state.horario}`, pageW / 2, infoBoxY + 48, { align: "center" });
     
-    // Linha 3: Mês de Referência
-    doc.line(leftMargin, infoBoxY + 42, pageW - rightMargin, infoBoxY + 42);
+    // Linha 4: Mês de Referência
+    doc.line(leftMargin, infoBoxY + 54, pageW - rightMargin, infoBoxY + 54);
     doc.setFont("times", "bold");
-    doc.text(`Ponto referente ao mês de ${mesAnoFormatted.toUpperCase()}`, pageW / 2, infoBoxY + 50, { align: "center" });
+    doc.text(`Ponto referente ao mês de ${mesAnoFormatted.toUpperCase()}`, pageW / 2, infoBoxY + 66, { align: "center" });
   } else {
     // Linha 1: Servidora, Matrícula, Função
     const col1W = usableW * 0.48;
