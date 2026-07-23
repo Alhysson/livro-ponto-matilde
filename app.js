@@ -40,7 +40,7 @@ async function preloadLogos() {
   }
   
   try {
-    state.logoRightBase64 = await getBase64Image("assets/image1_2.jpeg");
+    state.logoRightBase64 = await getBase64Image("assets/logo_matilde.png");
   } catch (e) {
     console.warn("Logo direita não encontrada, gerando sem imagem no PDF.");
   }
@@ -142,7 +142,7 @@ function initEvents() {
       paperSheet.className = "paper-sheet portrait";
     } else {
       groupAlmoco.style.display = "block";
-      groupFuncao.style.display = "block";
+      groupFuncao.style.display = "flex";
       paperSheet.className = "paper-sheet landscape";
     }
     
@@ -341,7 +341,7 @@ function renderPreview() {
   const subtitle = document.getElementById("sheet-subtitle");
   
   if (state.isEstagiario) {
-    titleMain.innerHTML = `ESTADO DO ESPÍRITO SANTO<br>PREFEITURA MUNICIPAL DE COLATINA<br>Secretaria Municipal de Educação<br><i>EMEF "Dr. Octávio Manhães de Andrade"</i><br><small style="font-size:9pt; font-style:italic">Colatina - ES</small>`;
+    titleMain.innerHTML = `ESTADO DO ESPÍRITO SANTO<br>PREFEITURA MUNICIPAL DE COLATINA<br>Secretaria Municipal de Educação<br><i>EMEIEF "Profª Matilde Guerra Comério"</i><br><small style="font-size:9pt; font-style:italic">Colatina - ES</small>`;
     subtitle.innerHTML = `CONTROLE DE FREQUÊNCIA`;
     
     // Adiciona o subtítulo da escola se não houver
@@ -350,11 +350,11 @@ function renderPreview() {
       subEscola = document.createElement("p");
       subEscola.id = "sheet-sub-escola";
       subEscola.className = "school-sub";
-      subEscola.innerText = `Escola Municipal de Ensino Fundamental “Dr. Octávio Manhães de Andrade”`;
+      subEscola.innerText = `Escola Municipal de Ensino Fundamental “Profª Matilde Guerra Comério”`;
       subtitle.parentNode.appendChild(subEscola);
     }
   } else {
-    titleMain.innerHTML = `ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL "EMEEF Dr. Octávio Manhães de Andrade"`;
+    titleMain.innerHTML = `EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO`;
     subtitle.innerHTML = `FICHA DE PONTO DIÁRIO`;
     const subEscola = document.getElementById("sheet-sub-escola");
     if (subEscola) subEscola.remove();
@@ -584,7 +584,7 @@ function generatePDF() {
       "ESTADO DO ESPÍRITO SANTO",
       "PREFEITURA MUNICIPAL DE COLATINA",
       "Secretaria Municipal de Educação",
-      "EMEF ” Dr. Octávio Manhães de Andrade”",
+      "EMEIEF ”Profª Matilde Guerra Comério”",
       "Colatina - ES"
     ];
     let currentY = topMargin + 8;
@@ -607,11 +607,11 @@ function generatePDF() {
     doc.text("CONTROLE DE FREQUÊNCIA", pageW / 2, topMargin + 80, { align: "center" });
     
     doc.setFontSize(13);
-    doc.text("Escola Municipal de Ensino Fundamental “Dr. Octávio Manhães de Andrade”", pageW / 2, topMargin + 98, { align: "center" });
+    doc.text("Escola Municipal de Ensino Fundamental “Profª Matilde Guerra Comério”", pageW / 2, topMargin + 98, { align: "center" });
   } else {
     // Servidora Landscape Header
     doc.setFontSize(10);
-    doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL \u201cEMEEF  Dr. Oct\u00e1vio Manh\u00e3es de Andrade\u201d", pageW / 2, centerY - 8, { align: "center" });
+    doc.text("EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO", pageW / 2, centerY - 8, { align: "center" });
     
     doc.setFontSize(10);
     doc.text("FICHA DE PONTO DI\u00c1RIO", pageW / 2, centerY + 12, { align: "center" });

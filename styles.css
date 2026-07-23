@@ -4,8 +4,8 @@
   --bg-card: #1e293b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
+  --primary: #d91a5c;
+  --primary-hover: #be185d;
   --success: #10b981;
   --success-hover: #059669;
   --danger: #ef4444;
@@ -768,3 +768,28 @@ body {
     gap: 14px;
   }
 }
+
+/* Institutional Footer in Sidebar */
+.panel-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background-color: rgba(15, 23, 42, 0.4);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.school-address {
+  font-weight: 500;
+}
+
+.school-phones {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
