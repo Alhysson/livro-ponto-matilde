@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Livro Ponto - EMEEF Dr. Octávio Manhães de Andrade</title>
+  
+  <!-- Fontes Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- jsPDF & jsPDF-AutoTable CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Painel de Controle Esquerdo (Controles e Formulário) -->
+    <aside class="control-panel" id="control-panel">
+      <header class="panel-header">
+        <h1 class="app-title">🏫 Gerador de Livro Ponto</h1>
+        <p class="app-subtitle">EMEEF Dr. Octávio Manhães de Andrade</p>
+      </header>
+
+      <form id="ponto-form" onsubmit="event.preventDefault();">
+        <!-- 1. Dados do Servidor -->
+        <section class="form-section card" id="section-servidor">
+          <h2 class="section-title">👤 1. Dados do Servidor</h2>
+          
+          <div class="input-group">
+            <label for="input-nome">Nome Completo</label>
+            <input type="text" id="input-nome" placeholder="Ex: GEOVANA GUNZ" autocomplete="off" required>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <label for="input-matricula">Matrícula</label>
+              <input type="text" id="input-matricula" placeholder="Ex: 123456" autocomplete="off">
+            </div>
+            
+            <div class="input-group" id="group-funcao">
+              <label for="input-funcao">Função</label>
+              <input type="text" id="input-funcao" placeholder="Ex: Professora" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="input-horario">Horário de Trabalho</label>
+            <input type="text" id="input-horario" placeholder="Ex: 7h ÀS 11H e 13H às 17H" autocomplete="off" required>
+          </div>
+
+          <div class="checkbox-group" id="group-almoco">
+            <label class="switch-container">
+              <input type="checkbox" id="checkbox-almoco" checked>
+              <span class="switch-slider"></span>
+              <span class="switch-label">Possui horário de almoço?</span>
+            </label>
+          </div>
+
+          <div class="checkbox-group">
+            <label class="switch-container">
+              <input type="checkbox" id="checkbox-estagiario">
+              <span class="switch-slider"></span>
+              <span class="switch-label">É estagiário?</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- 2. Período -->
+        <section class="form-section card" id="section-periodo">
+          <h2 class="section-title">📅 2. Período</h2>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="select-mes">Mês</label>
+              <select id="select-mes">
+                <option value="1">Janeiro</option>
+                <option value="2" selected>Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+            </div>
+            
+            <div class="input-group">
+              <label for="input-ano">Ano</label>
+              <input type="number" id="input-ano" value="2026" min="1900" max="2100" required>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Ajustes do Mês (Abas/Tabs) -->
+        <section class="form-section card" id="section-ajustes">
+          <div class="tabs-header">
+            <button type="button" class="tab-btn active" data-tab="tab-feriados">🏖️ Feriados</button>
+            <button type="button" class="tab-btn" data-tab="tab-bloqueio">🚫 Bloqueio</button>
+            <button type="button" class="tab-btn" data-tab="tab-observacoes">📝 Obs</button>
+          </div>
+
+          <div class="tabs-content">
+            <!-- Tab: Feriados -->
+            <div class="tab-pane active" id="tab-feriados">
+              <p class="tab-help">Adicione feriados ou recessos específicos para este mês.</p>
+              <div class="feriado-add-row">
+                <input type="number" id="input-dia-feriado" placeholder="Dia" min="1" max="31">
+                <select id="select-tipo-feriado">
+                  <option value="FERIADO">Feriado</option>
+                  <option value="RECESSO">Recesso</option>
+                </select>
+                <button type="button" id="btn-add-feriado" class="btn btn-secondary">Adicionar</button>
+              </div>
+              <div class="feriados-list-container">
+                <ul id="feriados-list" class="badge-list">
+                  <!-- Badges de feriados serão inseridos aqui dinamicamente -->
+                </ul>
+              </div>
+              <div class="clear-row">
+                <button type="button" id="btn-clear-feriados" class="btn btn-danger-link">Limpar Lista</button>
+              </div>
+            </div>
+
+            <!-- Tab: Bloqueio -->
+            <div class="tab-pane" id="tab-bloqueio">
+              <p class="tab-help">Desabilite um período específico (exibe uma linha tracejada diagonal).</p>
+              <div class="input-row">
+                <div class="input-group">
+                  <label for="input-blk-start">Dia Inicial</label>
+                  <input type="number" id="input-blk-start" placeholder="Ex: 1" min="1" max="31">
+                </div>
+                <div class="input-group">
+                  <label for="input-blk-end">Dia Final</label>
+                  <input type="number" id="input-blk-end" placeholder="Ex: 9" min="1" max="31">
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Observações -->
+            <div class="tab-pane" id="tab-observacoes">
+              <p class="tab-help">Nota de rodapé (aparecerá na linha de Observações da ficha).</p>
+              <div class="input-group">
+                <label for="input-obs">Observação</label>
+                <input type="text" id="input-obs" placeholder="Escreva aqui a observação..." autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Botão Principal de Ação -->
+        <div class="actions-container">
+          <button type="button" id="btn-gerar-pdf" class="btn btn-primary">
+            <span class="btn-icon">💾</span> Salvar PDF Final
+          </button>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Visualização em Tempo Real (Direita) -->
+    <main class="preview-panel">
+      <div class="preview-header">
+        <h2 class="preview-title">👀 Visualização em Tempo Real</h2>
+        <span class="preview-badge">Folha A4</span>
+      </div>
+      
+      <!-- Container do Papel A4 com rolagem e responsividade -->
+      <div class="paper-viewport" id="paper-viewport">
+        <div class="paper-sheet landscape" id="paper-sheet">
+          <!-- Cabeçalho do Papel -->
+          <div class="sheet-header">
+            <div class="logo-left"><img src="assets/image1_1.jpeg" alt="Logo" id="preview-logo-l"></div>
+            <div class="header-text-container">
+              <h3 id="sheet-title-main">ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL "EMEEF Dr. Octávio Manhães de Andrade"</h3>
+              <p id="sheet-subtitle">FICHA DE PONTO DIÁRIO</p>
+            </div>
+            <div class="logo-right"><img src="assets/image1_2.jpeg" alt="Logo" id="preview-logo-r"></div>
+          </div>
+
+          <!-- Caixa de Informações -->
+          <div class="sheet-info-box" id="sheet-info-box">
+            <!-- As informações do servidor serão atualizadas aqui via JS -->
+          </div>
+
+          <!-- Tabela de Frequência -->
+          <div class="sheet-table-wrapper" id="sheet-table-wrapper">
+            <table class="sheet-table" id="sheet-table">
+              <!-- O corpo da tabela será renderizado dinamicamente pelo JS -->
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
