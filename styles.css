@@ -180,6 +180,8 @@ body {
   transition: all 0.2s ease;
   outline: none;
   min-height: 44px; /* Touch target */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-group input:focus,
@@ -200,6 +202,7 @@ body {
 .input-row .input-group {
   flex: 1;
   margin-bottom: 0;
+  min-width: 0;
 }
 
 /* Custom Switch Toggle */
