@@ -18,6 +18,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+  <!-- Barra de Navegação Superior Mobile -->
+  <div class="mobile-nav" id="mobile-nav">
+    <button type="button" class="mobile-nav-btn active" id="btn-show-form">📝 Formulário</button>
+    <button type="button" class="mobile-nav-btn" id="btn-show-preview">👁️ Visualização</button>
+  </div>
+
   <div class="app-container">
     <!-- Painel de Controle Esquerdo (Controles e Formulário) -->
     <aside class="control-panel" id="control-panel">
@@ -173,27 +179,29 @@
       
       <!-- Container do Papel A4 com rolagem e responsividade -->
       <div class="paper-viewport" id="paper-viewport">
-        <div class="paper-sheet landscape" id="paper-sheet">
-          <!-- Cabeçalho do Papel -->
-          <div class="sheet-header">
-            <div class="logo-left"><img src="assets/image1_1.jpeg" alt="Logo" id="preview-logo-l"></div>
-            <div class="header-text-container">
-              <h3 id="sheet-title-main">ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL "EMEEF Dr. Octávio Manhães de Andrade"</h3>
-              <p id="sheet-subtitle">FICHA DE PONTO DIÁRIO</p>
+        <div class="sheet-scaler" id="sheet-scaler">
+          <div class="paper-sheet landscape" id="paper-sheet">
+            <!-- Cabeçalho do Papel -->
+            <div class="sheet-header">
+              <div class="logo-left"><img src="assets/image1_1.jpeg" alt="Logo" id="preview-logo-l"></div>
+              <div class="header-text-container">
+                <h3 id="sheet-title-main">ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL "EMEEF Dr. Octávio Manhães de Andrade"</h3>
+                <p id="sheet-subtitle">FICHA DE PONTO DIÁRIO</p>
+              </div>
+              <div class="logo-right"><img src="assets/image1_2.jpeg" alt="Logo" id="preview-logo-r"></div>
             </div>
-            <div class="logo-right"><img src="assets/image1_2.jpeg" alt="Logo" id="preview-logo-r"></div>
-          </div>
 
-          <!-- Caixa de Informações -->
-          <div class="sheet-info-box" id="sheet-info-box">
-            <!-- As informações do servidor serão atualizadas aqui via JS -->
-          </div>
+            <!-- Caixa de Informações -->
+            <div class="sheet-info-box" id="sheet-info-box">
+              <!-- As informações do servidor serão atualizadas aqui via JS -->
+            </div>
 
-          <!-- Tabela de Frequência -->
-          <div class="sheet-table-wrapper" id="sheet-table-wrapper">
-            <table class="sheet-table" id="sheet-table">
-              <!-- O corpo da tabela será renderizado dinamicamente pelo JS -->
-            </table>
+            <!-- Tabela de Frequência -->
+            <div class="sheet-table-wrapper" id="sheet-table-wrapper">
+              <table class="sheet-table" id="sheet-table">
+                <!-- O corpo da tabela será renderizado dinamicamente pelo JS -->
+              </table>
+            </div>
           </div>
         </div>
       </div>

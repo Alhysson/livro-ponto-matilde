@@ -80,6 +80,30 @@ function initDOM() {
 
 // Configura os escutadores de eventos do formulário
 function initEvents() {
+  // Mobile Nav Buttons Toggle
+  const btnShowForm = document.getElementById("btn-show-form");
+  const btnShowPreview = document.getElementById("btn-show-preview");
+  const controlPanel = document.getElementById("control-panel");
+  const previewPanel = document.querySelector(".preview-panel");
+
+  if (btnShowForm && btnShowPreview) {
+    btnShowForm.addEventListener("click", () => {
+      btnShowForm.classList.add("active");
+      btnShowPreview.classList.remove("active");
+      controlPanel.classList.remove("hidden");
+      previewPanel.classList.remove("active");
+    });
+
+    btnShowPreview.addEventListener("click", () => {
+      btnShowPreview.classList.add("active");
+      btnShowForm.classList.remove("active");
+      controlPanel.classList.add("hidden");
+      previewPanel.classList.add("active");
+      // Atualiza a escala da folha agora que o painel está visível
+      setTimeout(updateSheetScale, 50);
+    });
+  }
+
   // Inputs de texto simples
   document.getElementById("input-nome").addEventListener("input", (e) => {
     state.nome = e.target.value;
@@ -232,24 +256,28 @@ window.removeFeriado = function(dia) {
 // Calcula a escala da folha de ponto no preview lateral
 function updateSheetScale() {
   const viewport = document.getElementById("paper-viewport");
+  const scaler = document.getElementById("sheet-scaler");
   const sheet = document.getElementById("paper-sheet");
-  if (!viewport || !sheet) return;
+  if (!viewport || !scaler || !sheet) return;
 
   sheet.style.transform = "none";
   
   const isPortrait = sheet.classList.contains("portrait");
-  // Dimensões A4 aproximadas em pixels
+  // Dimensões A4 em pixels (A4 a 96dpi)
   const sheetW = isPortrait ? 794 : 1123;
-  const padding = 60; // Margem interna do painel de visualização
+  const sheetH = isPortrait ? 1123 : 794;
+  const padding = 20; // Margem interna do painel (combina com CSS)
   const availableW = viewport.clientWidth - padding;
   
   const scale = Math.min(1, availableW / sheetW);
-  sheet.style.transform = `scale(${scale})`;
-  sheet.style.transformOrigin = "top center";
+  
+  // Define o tamanho exato do scaler com base na escala
+  scaler.style.width = `${sheetW * scale}px`;
+  scaler.style.height = `${sheetH * scale}px`;
 
-  // Mantém a altura correta do scroll
-  const sheetH = isPortrait ? 1123 : 794;
-  viewport.style.minHeight = `${(sheetH * scale) + padding}px`;
+  // Escala a folha real a partir do canto superior esquerdo (top left)
+  sheet.style.transform = `scale(${scale})`;
+  sheet.style.transformOrigin = "top left";
   
   // Após redimensionar/escalar, as posições dos elementos mudaram, então redesenha a linha de bloqueio
   setTimeout(drawBlockoutLine, 100);
@@ -266,8 +294,8 @@ function drawBlockoutLine() {
   if (state.blockStart < 1 || state.blockEnd > numDays || state.blockStart > state.blockEnd) return;
 
   const table = document.getElementById("sheet-table");
-  const wrapper = document.getElementById("sheet-table-wrapper");
-  if (!table || !wrapper) return;
+  const scaler = document.getElementById("sheet-scaler");
+  if (!table || !scaler) return;
 
   const startRowIndex = state.isEstagiario ? state.blockStart + 1 : state.blockStart;
   const endRowIndex = state.isEstagiario ? state.blockEnd + 1 : state.blockEnd;
@@ -285,21 +313,22 @@ function drawBlockoutLine() {
   const endCell = endRow.cells[endColIndex];
   if (!startCell || !endCell) return;
 
-  const wrapperRect = wrapper.getBoundingClientRect();
+  const scalerRect = scaler.getBoundingClientRect();
   const startRect = startCell.getBoundingClientRect();
   const endRect = endCell.getBoundingClientRect();
 
-  const x1 = startRect.left - wrapperRect.left;
-  const y1 = startRect.top - wrapperRect.top;
-  const x2 = endRect.right - wrapperRect.left;
-  const y2 = endRect.bottom - wrapperRect.top;
+  // Calcula coordenadas relativas ao Scaler (que não sofre transform: scale)
+  const x1 = startRect.left - scalerRect.left;
+  const y1 = startRect.top - scalerRect.top;
+  const x2 = endRect.right - scalerRect.left;
+  const y2 = endRect.bottom - scalerRect.top;
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.id = "blockout-svg-preview";
   svg.setAttribute("class", "blockout-svg");
   svg.innerHTML = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="blockout-line" />`;
   
-  wrapper.appendChild(svg);
+  scaler.appendChild(svg);
 }
 
 // Renderiza a folha de ponto interativa no preview (HTML)
