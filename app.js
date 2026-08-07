@@ -127,16 +127,24 @@ const ESTAGIARIOS_DB = {
     horario: "13:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
     obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. O estagiário iniciou na Unidade Escolar em 20/07/2026.",
-    blockStart: "1",
-    blockEnd: "19"
+    blockStart: "",
+    blockEnd: ""
   },
   "LUCIANA BERNARDO LOPES": {
     ies: "UNINTER",
     horario: "06:30 ÀS 12:30",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
     obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. A estagiária iniciou na Unidade Escolar em 27/07/2026.",
-    blockStart: "1",
-    blockEnd: "26"
+    blockStart: "",
+    blockEnd: ""
+  },
+  "ALHYSSON FRANCISCO SAQUETO": {
+    ies: "UNESC",
+    horario: "13:00 ÀS 18:00",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
   }
 };
 
