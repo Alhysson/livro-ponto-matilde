@@ -65,6 +65,81 @@ const CALENDARIO_2026 = {
   }
 };
 
+const ESTAGIARIOS_DB = {
+  "CARINA LIEVORE NATALLI": {
+    ies: "UNIUBE",
+    horario: "06:40 ÀS 11:40",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "SUIANY HERBST DE SOUZA": {
+    ies: "MULTIVIX",
+    horario: "12:00 ÀS 18:00",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "RAYKA VIEIRA BARBOSA": {
+    ies: "UNESC",
+    horario: "06:30 ÀS 12:30",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "UELTON DA SILVA LUZ": {
+    ies: "CASTELO BRANCO",
+    horario: "12:00 ÀS 18:00",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "VANDERLENI CHAGA": {
+    ies: "UNINTER",
+    horario: "06:30 ÀS 12:30",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "ENIELY DE OLIVEIRA MARTINS CALZI": {
+    ies: "IGUAÇU MG",
+    horario: "06:30 ÀS 12:30",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "LORENA DE MOURA DA MATA": {
+    ies: "BOOK PLAY",
+    horario: "12:00 ÀS 18:00",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    blockStart: "",
+    blockEnd: ""
+  },
+  "MATHEUS SCHUTLTZ CREMASCO": {
+    ies: "UNESC",
+    horario: "13:00 ÀS 18:00",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. O estagiário iniciou na Unidade Escolar em 20/07/2026.",
+    blockStart: "1",
+    blockEnd: "19"
+  },
+  "LUCIANA BERNARDO LOPES": {
+    ies: "UNINTER",
+    horario: "06:30 ÀS 12:30",
+    unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
+    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. A estagiária iniciou na Unidade Escolar em 27/07/2026.",
+    blockStart: "1",
+    blockEnd: "26"
+  }
+};
+
 // Estado da Aplicação
 const state = {
   nome: "",
@@ -185,7 +260,32 @@ function initEvents() {
     renderPreview();
   });
   document.getElementById("input-nome").addEventListener("input", (e) => {
+    const val = e.target.value.trim().toUpperCase();
     state.nome = e.target.value;
+    
+    if (val in ESTAGIARIOS_DB) {
+      const data = ESTAGIARIOS_DB[val];
+      
+      const checkEst = document.getElementById("checkbox-estagiario");
+      if (checkEst && !checkEst.checked) {
+        checkEst.checked = true;
+        checkEst.dispatchEvent(new Event('change'));
+      }
+      
+      state.instituicao = data.ies;
+      state.horario = data.horario;
+      state.unidadeEscolar = data.unidade;
+      state.obs = data.obs;
+      state.blockStart = data.blockStart ? parseInt(data.blockStart) : null;
+      state.blockEnd = data.blockEnd ? parseInt(data.blockEnd) : null;
+      
+      document.getElementById("input-instituicao").value = data.ies;
+      document.getElementById("input-horario").value = data.horario;
+      document.getElementById("input-unidade").value = data.unidade;
+      document.getElementById("input-obs").value = data.obs;
+      document.getElementById("input-blk-start").value = data.blockStart || "";
+      document.getElementById("input-blk-end").value = data.blockEnd || "";
+    }
     renderPreview();
   });
   document.getElementById("input-matricula").addEventListener("input", (e) => {
