@@ -70,7 +70,7 @@ const ESTAGIARIOS_DB = {
     ies: "UNIUBE",
     horario: "06:40 ÀS 11:40",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -78,7 +78,7 @@ const ESTAGIARIOS_DB = {
     ies: "MULTIVIX",
     horario: "12:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -86,7 +86,7 @@ const ESTAGIARIOS_DB = {
     ies: "UNESC",
     horario: "06:30 ÀS 12:30",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -94,7 +94,7 @@ const ESTAGIARIOS_DB = {
     ies: "CASTELO BRANCO",
     horario: "12:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -102,15 +102,15 @@ const ESTAGIARIOS_DB = {
     ies: "UNINTER",
     horario: "06:30 ÀS 12:30",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
   "ENIELY DE OLIVEIRA MARTINS CALZI": {
     ies: "IGUAÇU MG",
-    horario: "06:30 ÀS 12:30",
+    horario: "12:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -118,7 +118,7 @@ const ESTAGIARIOS_DB = {
     ies: "BOOK PLAY",
     horario: "12:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -126,7 +126,7 @@ const ESTAGIARIOS_DB = {
     ies: "UNESC",
     horario: "13:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. O estagiário iniciou na Unidade Escolar em 20/07/2026.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -134,7 +134,7 @@ const ESTAGIARIOS_DB = {
     ies: "UNINTER",
     horario: "06:30 ÀS 12:30",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar. A estagiária iniciou na Unidade Escolar em 27/07/2026.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   },
@@ -142,7 +142,7 @@ const ESTAGIARIOS_DB = {
     ies: "UNESC",
     horario: "13:00 ÀS 18:00",
     unidade: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
-    obs: "No período de 13/07 a 17/07, conforme orientação da Secretaria Municipal de Educação, os ESTAGIÁRIOS usufruirão de Recesso Escolar.",
+    obs: "",
     blockStart: "",
     blockEnd: ""
   }
