@@ -1,8 +1,69 @@
-// Constantes e Configurações
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
+
+const CALENDARIO_2026 = {
+  1: {
+    "1": "FERIADO",
+    "2": "RECESSO ESCOLAR",
+    ...Object.fromEntries(Array.from({length: 27}, (_, i) => [String(i + 5), "FÉRIAS ESCOLARES"]))
+  },
+  2: {
+    "1": "FÉRIAS ESCOLARES",
+    "2": "FÉRIAS ESCOLARES",
+    "3": "FÉRIAS ESCOLARES",
+    "4": "JORNADA PEDAGÓGICA",
+    "5": "JORNADA PEDAGÓGICA",
+    "6": "JORNADA PEDAGÓGICA",
+    "16": "RECESSO ESCOLAR",
+    "17": "FERIADO",
+    "18": "RECESSO ESCOLAR"
+  },
+  3: {},
+  4: {
+    "2": "RECESSO ESCOLAR",
+    "3": "FERIADO",
+    "13": "FERIADO",
+    "20": "RECESSO ESCOLAR",
+    "21": "FERIADO"
+  },
+  5: {
+    "1": "FERIADO",
+    "15": "CONSELHO DE CLASSE"
+  },
+  6: {
+    "4": "FERIADO",
+    "5": "RECESSO ESCOLAR",
+    "12": "FERIADO"
+  },
+  7: Object.fromEntries(Array.from({length: 5}, (_, i) => [String(i + 13), "RECESSO ESCOLAR"])),
+  8: {
+    "22": "FERIADO",
+    "31": "CONSELHO DE CLASSE"
+  },
+  9: {
+    "7": "FERIADO"
+  },
+  10: {
+    "12": "FERIADO",
+    "15": "FERIADO"
+  },
+  11: {
+    "2": "FERIADO",
+    "15": "FERIADO",
+    "20": "FERIADO"
+  },
+  12: {
+    "18": "CONSELHO DE CLASSE",
+    "21": "RECUPERAÇÃO FINAL",
+    "22": "RECUPERAÇÃO FINAL",
+    "23": "CONSELHO CLASSE FINAL",
+    "24": "RECESSO ESCOLAR",
+    "25": "FERIADO",
+    ...Object.fromEntries(Array.from({length: 4}, (_, i) => [String(i + 28), "RECESSO ESCOLAR"]))
+  }
+};
 
 // Estado da Aplicação
 const state = {
@@ -11,6 +72,7 @@ const state = {
   funcao: "",
   horario: "",
   instituicao: "",
+  unidadeEscolar: "EMEIEF “PROFª MATILDE GUERRA COMÉRIO”",
   hasAlmoco: true,
   isEstagiario: false,
   mes: 2, // Fevereiro padrão
@@ -27,10 +89,20 @@ const state = {
 // Inicialização do APP
 document.addEventListener("DOMContentLoaded", () => {
   initDOM();
+  updateDefaultSpecialDays();
   initEvents();
   preloadLogos();
   renderPreview();
 });
+
+function updateDefaultSpecialDays() {
+  if (state.ano === 2026 && CALENDARIO_2026[state.mes]) {
+    state.especiais = { ...CALENDARIO_2026[state.mes] };
+  } else {
+    state.especiais = {};
+  }
+  renderFeriadosBadges();
+}
 
 // Pré-carrega as imagens do cabeçalho em base64 para evitar problemas assíncronos no PDF
 async function preloadLogos() {
@@ -66,6 +138,7 @@ function getBase64Image(imgUrl) {
 
 // Vincula elementos do DOM ao estado inicial
 function initDOM() {
+  document.getElementById("input-unidade").value = state.unidadeEscolar;
   document.getElementById("input-nome").value = state.nome;
   document.getElementById("input-matricula").value = state.matricula;
   document.getElementById("input-funcao").value = state.funcao;
@@ -107,6 +180,10 @@ function initEvents() {
   }
 
   // Inputs de texto simples
+  document.getElementById("input-unidade").addEventListener("input", (e) => {
+    state.unidadeEscolar = e.target.value;
+    renderPreview();
+  });
   document.getElementById("input-nome").addEventListener("input", (e) => {
     state.nome = e.target.value;
     renderPreview();
@@ -162,12 +239,14 @@ function initEvents() {
   // Período
   document.getElementById("select-mes").addEventListener("change", (e) => {
     state.mes = parseInt(e.target.value);
+    updateDefaultSpecialDays();
     renderPreview();
   });
   document.getElementById("input-ano").addEventListener("input", (e) => {
     const val = parseInt(e.target.value);
     if (!isNaN(val)) {
       state.ano = val;
+      updateDefaultSpecialDays();
       renderPreview();
     }
   });
@@ -187,9 +266,10 @@ function initEvents() {
   // Feriados/Recessos
   document.getElementById("btn-add-feriado").addEventListener("click", () => {
     const diaInput = document.getElementById("input-dia-feriado");
-    const tipoSelect = document.getElementById("select-tipo-feriado");
+    const tipoInput = document.getElementById("input-tipo-feriado");
+    const checkTracos = document.getElementById("checkbox-feriado-tracos");
     const dia = diaInput.value.trim();
-    const tipo = tipoSelect.value;
+    let tipo = (tipoInput.value.trim() || "FERIADO").toUpperCase();
     
     const numDays = new Date(state.ano, state.mes, 0).getDate();
     const diaInt = parseInt(dia);
@@ -199,8 +279,14 @@ function initEvents() {
       return;
     }
 
+    if (checkTracos && checkTracos.checked) {
+      tipo = tipo + "|DASH";
+    }
+
     state.especiais[dia] = tipo;
     diaInput.value = "";
+    tipoInput.value = "";
+    if (checkTracos) checkTracos.checked = false;
     
     renderFeriadosBadges();
     renderPreview();
@@ -247,10 +333,11 @@ function renderFeriadosBadges() {
   
   sortedDays.forEach(dia => {
     const tipo = state.especiais[dia];
+    const displayTipo = tipo.replace("|DASH", " (com traços)");
     
     const li = document.createElement("li");
     li.className = "badge";
-    li.innerHTML = `Dia ${dia} (${tipo}) <button type="button" class="remove-btn" onclick="removeFeriado('${dia}')">&times;</button>`;
+    li.innerHTML = `Dia ${dia} (${displayTipo}) <button type="button" class="remove-btn" onclick="removeFeriado('${dia}')">&times;</button>`;
     container.appendChild(li);
   });
 }
@@ -340,6 +427,25 @@ function drawBlockoutLine() {
   scaler.appendChild(svg);
 }
 
+function parseInternSchedule(horarioStr) {
+  if (!horarioStr) return ["", ""];
+  const s = horarioStr.trim().toLowerCase();
+  const regex = /(\d{1,2})(?:[h:](\d{2})?|h)?/g;
+  const times = [];
+  let match;
+  while ((match = regex.exec(s)) !== null) {
+    const h = parseInt(match[1]);
+    const m = match[2] ? parseInt(match[2]) : 0;
+    if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+      times.push(`${h}:${String(m).padStart(2, '0')}`);
+    }
+  }
+  if (times.length >= 2) {
+    return [times[0], times[1]];
+  }
+  return ["", ""];
+}
+
 // Renderiza a folha de ponto interativa no preview (HTML)
 function renderPreview() {
   const numDays = new Date(state.ano, state.mes, 0).getDate();
@@ -350,21 +456,22 @@ function renderPreview() {
   const subtitle = document.getElementById("sheet-subtitle");
   
   if (state.isEstagiario) {
-    titleMain.innerHTML = `ESTADO DO ESPÍRITO SANTO<br>PREFEITURA MUNICIPAL DE COLATINA<br>Secretaria Municipal de Educação<br><i>EMEIEF "Profª Matilde Guerra Comério"</i><br><small style="font-size:9pt; font-style:italic">Colatina - ES</small>`;
-    subtitle.innerHTML = `CONTROLE DE FREQUÊNCIA`;
+    titleMain.innerHTML = `<b>ESTADO DO ESPÍRITO SANTO</b><br>PREFEITURA MUNICIPAL DE COLATINA<br><b>Secretaria Municipal de Educação</b><br><small style="font-size:7pt; font-family: var(--font-sheet); font-weight: normal;">Rua Melvin Jones, 50 – Esplanada – Colatina – ES – 29.702.110  - Tel: 3177-7064</small>`;
+    subtitle.innerHTML = `
+      <div style="font-size: 14pt; font-weight: bold; font-family: var(--font-sheet); text-decoration: none; line-height: 1.3;">ESTÁGIO DE COMPLEMENTAÇÃO EDUCACIONAL</div>
+      <div style="font-size: 14pt; font-weight: bold; font-family: var(--font-sheet); text-decoration: none; line-height: 1.3;">CONTROLE DE FREQUÊNCIA – Mês: ${mesNome.toUpperCase()} / ${state.ano}</div>
+    `;
     
-    // Adiciona o subtítulo da escola se não houver
-    let subEscola = document.getElementById("sheet-sub-escola");
-    if (!subEscola) {
-      subEscola = document.createElement("p");
-      subEscola.id = "sheet-sub-escola";
-      subEscola.className = "school-sub";
-      subEscola.innerText = `Escola Municipal de Ensino Fundamental “Profª Matilde Guerra Comério”`;
-      subtitle.parentNode.appendChild(subEscola);
-    }
+    document.querySelector(".logo-right").style.visibility = "hidden";
+    
+    const subEscola = document.getElementById("sheet-sub-escola");
+    if (subEscola) subEscola.remove();
   } else {
-    titleMain.innerHTML = `EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO`;
+    titleMain.innerHTML = state.unidadeEscolar.toUpperCase() || "EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO";
     subtitle.innerHTML = `FICHA DE PONTO DIÁRIO`;
+    
+    document.querySelector(".logo-right").style.visibility = "visible";
+    
     const subEscola = document.getElementById("sheet-sub-escola");
     if (subEscola) subEscola.remove();
   }
@@ -377,23 +484,22 @@ function renderPreview() {
   const mesAnoFormatted = `${mesNome} de ${state.ano}`;
 
   if (state.isEstagiario) {
-    // Estagiário Layout
+    // Estagiário Layout (sem bordas, alinhamento conforme docx)
+    infoBox.style.border = "none";
     infoBox.innerHTML = `
-      <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-bottom: none;">
-        <strong>Servidor Estagiário:</strong> ${nomeUpper || "&nbsp;"}
+      <div style="padding: 4px 0; font-size: 14pt; text-align: center; font-weight: bold; font-family: var(--font-sheet);">
+        Unidade Escolar: ${state.unidadeEscolar.toUpperCase() || "&nbsp;"}
       </div>
-      <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-top: 0.8pt solid #000; border-bottom: none;">
-        <strong>Instituição de Ensino Superior:</strong> ${state.instituicao.toUpperCase() || "&nbsp;"}
+      <div style="padding: 4px 0; font-size: 16pt; text-align: center; font-weight: bold; font-family: var(--font-sheet);">
+        Estagiário: ${nomeUpper || "&nbsp;"}
       </div>
-      <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-top: 0.8pt solid #000; border-bottom: none;">
-        <strong>Número Matrícula:</strong> ${state.matricula || "&nbsp;"} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Horário:</strong> ${state.horario || "&nbsp;"}
-      </div>
-      <div class="info-col-full" style="padding: 6px; font-size: 11.5pt; text-align: center; border-top: 0.8pt solid #000;">
-        <strong>Ponto referente ao mês de ${mesAnoFormatted.toUpperCase()}</strong>
+      <div style="padding: 4px 0; font-size: 16pt; text-align: center; font-weight: bold; font-family: var(--font-sheet);">
+        Instituição de Ensino Superior: ${state.instituicao.toUpperCase() || "&nbsp;"}
       </div>
     `;
   } else {
     // Standard Servidora Layout
+    infoBox.style.border = "0.8pt solid #000";
     infoBox.innerHTML = `
       <div class="info-row">
         <div class="info-col info-col-48"><strong>Servidora:</strong> ${nomeUpper || "&nbsp;"}</div>
@@ -414,24 +520,20 @@ function renderPreview() {
   table.innerHTML = "";
 
   const dashLine = "---------------";
-  const dashLineEst = "-----";
 
   if (state.isEstagiario) {
     // Tabela Estagiário
-    // Headers (2 linhas)
-    const tr1 = document.createElement("tr");
-    tr1.innerHTML = `
-      <th rowspan="2" class="col-est-dia">Dias</th>
-      <th colspan="2">Horário</th>
-      <th rowspan="2" class="col-est-assn">Assinatura</th>
-    `;
-    const tr2 = document.createElement("tr");
-    tr2.innerHTML = `
+    // Headers (1 linha)
+    const trHead = document.createElement("tr");
+    trHead.innerHTML = `
+      <th class="col-est-dia">Dia</th>
       <th class="col-est-hora-ent">Entrada</th>
       <th class="col-est-hora-sai">Saída</th>
+      <th class="col-est-assn">Assinatura</th>
     `;
-    table.appendChild(tr1);
-    table.appendChild(tr2);
+    table.appendChild(trHead);
+
+    const [entTime, saiTime] = parseInternSchedule(state.horario);
 
     // Linhas dos dias
     for (let day = 1; day <= numDays; day++) {
@@ -440,31 +542,34 @@ function renderPreview() {
       const dayStr = String(day).padStart(2, "0");
       const tr = document.createElement("tr");
       
-      let colEntrada = "";
-      let colSaida = "";
+      let colEntrada = entTime || "";
+      let colSaida = saiTime || "";
       let colAssinatura = "";
-      let boldDia = true;
 
       if (String(day) in state.especiais) {
-        const desc = state.especiais[String(day)];
-        colEntrada = dashLineEst;
-        colSaida = dashLineEst;
-        colAssinatura = desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase();
+        const val = state.especiais[String(day)].toUpperCase();
+        if (val.includes("|DASH")) {
+          colEntrada = "-----";
+          colSaida = "-----";
+          colAssinatura = val.split("|")[0];
+        } else {
+          colAssinatura = val;
+        }
       } else if (weekday === 6) {
-        colEntrada = dashLineEst;
-        colSaida = dashLineEst;
-        colAssinatura = "Sábado";
+        colEntrada = "SÁBADO";
+        colSaida = "SÁBADO";
+        colAssinatura = "SÁBADO";
       } else if (weekday === 0) {
-        colEntrada = dashLineEst;
-        colSaida = dashLineEst;
-        colAssinatura = "Domingo";
+        colEntrada = "DOMINGO";
+        colSaida = "DOMINGO";
+        colAssinatura = "DOMINGO";
       }
 
       tr.innerHTML = `
-        <td style="${boldDia ? 'font-weight: bold;' : ''}">${dayStr}</td>
-        <td>${colEntrada}</td>
-        <td>${colSaida}</td>
-        <td style="text-align: center;">${colAssinatura}</td>
+        <td style="font-weight: bold;">${dayStr}</td>
+        <td style="font-weight: bold;">${colEntrada}</td>
+        <td style="font-weight: bold;">${colSaida}</td>
+        <td style="text-align: center; font-weight: bold;">${colAssinatura}</td>
       `;
       table.appendChild(tr);
     }
@@ -519,15 +624,24 @@ function renderPreview() {
     }
   }
 
-  // 4. Linha de Observação no rodapé
-  const trObs = document.createElement("tr");
-  const totalCols = state.isEstagiario ? 4 : 9;
-  trObs.innerHTML = `
-    <td colspan="${totalCols}" class="obs-cell">
-      <strong>Obs.:</strong> ${state.obs}
-    </td>
-  `;
-  table.appendChild(trObs);
+  // 4. Linha de Observação
+  const obsContainer = document.getElementById("sheet-obs-container");
+  if (state.isEstagiario) {
+    if (obsContainer) {
+      obsContainer.innerHTML = `<span style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; font-weight: bold;">OBS:</span> <span style="font-family: Calibri, Arial, sans-serif; font-size: 10pt; font-weight: normal; margin-left: 4px;">${state.obs}</span>`;
+    }
+  } else {
+    if (obsContainer) {
+      obsContainer.innerHTML = "";
+    }
+    const trObs = document.createElement("tr");
+    trObs.innerHTML = `
+      <td colspan="9" class="obs-cell">
+        <strong>Obs.:</strong> ${state.obs}
+      </td>
+    `;
+    table.appendChild(trObs);
+  }
 
   // Re-ajusta a escala do preview
   updateSheetScale();
@@ -580,8 +694,8 @@ function generatePDF() {
     doc.addImage(state.logoLeftBase64, "JPEG", leftMargin, topMargin, logoW, logoH);
   }
 
-  // Adiciona logo direita se existir no cache
-  if (state.logoRightBase64) {
+  // Adiciona logo direita se existir no cache (somente se não for estagiário)
+  if (state.logoRightBase64 && !state.isEstagiario) {
     doc.addImage(state.logoRightBase64, "JPEG", pageW - rightMargin - logoW, topMargin, logoW, logoH);
   }
 
@@ -592,38 +706,39 @@ function generatePDF() {
     // Estagiário Header
     doc.setFontSize(10);
     doc.setFont("times", "normal");
+    const addressStr = "Rua Melvin Jones, 50 – Esplanada – Colatina – ES – 29.702.110  - Tel: 3177-7064";
     const headerLines = [
       "ESTADO DO ESPÍRITO SANTO",
       "PREFEITURA MUNICIPAL DE COLATINA",
       "Secretaria Municipal de Educação",
-      "EMEIEF ”Profª Matilde Guerra Comério”",
-      "Colatina - ES"
+      addressStr
     ];
     let currentY = topMargin + 8;
     headerLines.forEach((line, idx) => {
-      if (idx === 3) doc.setFont("times", "italic");
-      else if (idx === 4) {
-        doc.setFont("times", "italic");
+      if (idx === 0 || idx === 2) {
+        doc.setFont("times", "bold");
         doc.setFontSize(9);
-      } else {
+      } else if (idx === 1) {
         doc.setFont("times", "normal");
-        doc.setFontSize(10);
+        doc.setFontSize(9);
+      } else if (idx === 3) {
+        doc.setFont("times", "normal");
+        doc.setFontSize(7);
       }
       doc.text(line, pageW / 2, currentY, { align: "center" });
-      currentY += 12;
+      currentY += 11;
     });
 
-    // Subtítulo CONTROLE DE FREQUÊNCIA
+    // Subtítulos
     doc.setFont("times", "bold");
-    doc.setFontSize(18);
-    doc.text("CONTROLE DE FREQUÊNCIA", pageW / 2, topMargin + 80, { align: "center" });
-    
-    doc.setFontSize(13);
-    doc.text("Escola Municipal de Ensino Fundamental “Profª Matilde Guerra Comério”", pageW / 2, topMargin + 98, { align: "center" });
+    doc.setFontSize(14);
+    doc.text("ESTÁGIO DE COMPLEMENTAÇÃO EDUCACIONAL", pageW / 2, topMargin + 72, { align: "center" });
+    doc.text(`CONTROLE DE FREQUÊNCIA – Mês: ${MESES[state.mes - 1].toUpperCase()} / ${state.ano}`, pageW / 2, topMargin + 88, { align: "center" });
   } else {
     // Servidora Landscape Header
     doc.setFontSize(10);
-    doc.text("EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO", pageW / 2, centerY - 8, { align: "center" });
+    const schoolName = state.unidadeEscolar || "EMEIEF PROFESSORA MATILDE GUERRA COMÉRIO";
+    doc.text(schoolName.toUpperCase(), pageW / 2, centerY - 8, { align: "center" });
     
     doc.setFontSize(10);
     doc.text("FICHA DE PONTO DI\u00c1RIO", pageW / 2, centerY + 12, { align: "center" });
@@ -635,11 +750,13 @@ function generatePDF() {
   }
 
   // --- 2. DADOS DO SERVIDOR (Info Box) ---
-  const infoBoxY = state.isEstagiario ? topMargin + 120 : topMargin + 65;
-  const infoBoxH = state.isEstagiario ? 72 : 34; // 4 linhas em retrato vs 3 linhas em paisagem
+  const infoBoxY = state.isEstagiario ? topMargin + 105 : topMargin + 65;
+  const infoBoxH = state.isEstagiario ? 54 : 34;
 
-  doc.setLineWidth(0.8);
-  doc.rect(leftMargin, infoBoxY, usableW, infoBoxH);
+  if (!state.isEstagiario) {
+    doc.setLineWidth(0.8);
+    doc.rect(leftMargin, infoBoxY, usableW, infoBoxH);
+  }
 
   doc.setFont("times", "normal");
   doc.setFontSize(8.5);
@@ -649,22 +766,17 @@ function generatePDF() {
   const nomeUpper = state.nome.toUpperCase();
 
   if (state.isEstagiario) {
-    // Linha 1: Servidor Estagiário: [Nome]
-    doc.setFontSize(12);
-    doc.text(`Servidor Estagiário: ${nomeUpper}`, pageW / 2, infoBoxY + 14, { align: "center" });
+    const textUnidade = `Unidade Escolar: ${state.unidadeEscolar.toUpperCase() || ""}`;
+    const textNome = `Estagiário: ${nomeUpper || ""}`;
+    const textIES = `Instituição de Ensino Superior: ${state.instituicao.toUpperCase() || ""}`;
     
-    // Linha 2: Instituição de Ensino Superior
-    doc.line(leftMargin, infoBoxY + 18, pageW - rightMargin, infoBoxY + 18);
-    doc.text(`Instituição de Ensino Superior: ${state.instituicao.toUpperCase()}`, pageW / 2, infoBoxY + 30, { align: "center" });
-
-    // Linha 3: Matrícula e Horário
-    doc.line(leftMargin, infoBoxY + 36, pageW - rightMargin, infoBoxY + 36);
-    doc.text(`Número Matrícula: ${state.matricula}                Horário: ${state.horario}`, pageW / 2, infoBoxY + 48, { align: "center" });
-    
-    // Linha 4: Mês de Referência
-    doc.line(leftMargin, infoBoxY + 54, pageW - rightMargin, infoBoxY + 54);
     doc.setFont("times", "bold");
-    doc.text(`Ponto referente ao mês de ${mesAnoFormatted.toUpperCase()}`, pageW / 2, infoBoxY + 66, { align: "center" });
+    doc.setFontSize(14);
+    doc.text(textUnidade, pageW / 2, infoBoxY + 12, { align: "center" });
+    
+    doc.setFontSize(16);
+    doc.text(textNome, pageW / 2, infoBoxY + 30, { align: "center" });
+    doc.text(textIES, pageW / 2, infoBoxY + 48, { align: "center" });
   } else {
     // Linha 1: Servidora, Matrícula, Função
     const col1W = usableW * 0.48;
@@ -688,42 +800,45 @@ function generatePDF() {
   }
 
   // --- 3. TABELA DE FREQUÊNCIA ---
-  const numDays = new Date(state.ano, state.mes - 1, 0).getDate();
+  const numDays = new Date(state.ano, state.mes, 0).getDate();
   const tableData = [];
   
   const dash = "---------------";
   const dashEst = "-----";
 
   if (state.isEstagiario) {
-    // Dados Estagiário
+    const [entTime, saiTime] = parseInternSchedule(state.horario);
     for (let day = 1; day <= numDays; day++) {
       const date = new Date(state.ano, state.mes - 1, day);
       const weekday = date.getDay();
       const dayStr = String(day).padStart(2, "0");
       
-      let colEntrada = "";
-      let colSaida = "";
+      let colEntrada = entTime || "";
+      let colSaida = saiTime || "";
       let colAssinatura = "";
 
       if (String(day) in state.especiais) {
-        const desc = state.especiais[String(day)];
-        colEntrada = dashEst;
-        colSaida = dashEst;
-        colAssinatura = desc.charAt(0).toUpperCase() + desc.slice(1).toLowerCase();
+        const val = state.especiais[String(day)].toUpperCase();
+        if (val.includes("|DASH")) {
+          colEntrada = "-----";
+          colSaida = "-----";
+          colAssinatura = val.split("|")[0];
+        } else {
+          colAssinatura = val;
+        }
       } else if (weekday === 6) {
-        colEntrada = dashEst;
-        colSaida = dashEst;
-        colAssinatura = "Sábado";
+        colEntrada = "SÁBADO";
+        colSaida = "SÁBADO";
+        colAssinatura = "SÁBADO";
       } else if (weekday === 0) {
-        colEntrada = dashEst;
-        colSaida = dashEst;
-        colAssinatura = "Domingo";
+        colEntrada = "DOMINGO";
+        colSaida = "DOMINGO";
+        colAssinatura = "DOMINGO";
       }
 
       tableData.push([dayStr, colEntrada, colSaida, colAssinatura]);
     }
   } else {
-    // Dados Servidora Comum (Landscape)
     for (let day = 1; day <= numDays; day++) {
       const date = new Date(state.ano, state.mes - 1, day);
       const weekday = date.getDay();
@@ -746,24 +861,21 @@ function generatePDF() {
     }
   }
 
-  // Linha de Observações extra
-  const obsRowData = state.isEstagiario 
-    ? [`Obs.: ${state.obs}`, "", "", ""] 
-    : [`Obs.: ${state.obs}`, "", "", "", "", "", "", "", ""];
-  tableData.push(obsRowData);
+  // Linha de Observações (apenas para landscape)
+  if (!state.isEstagiario) {
+    const obsRowData = [`Obs.: ${state.obs}`, "", "", "", "", "", "", "", ""];
+    tableData.push(obsRowData);
+  }
 
-  // Configurações de altura da tabela (para caber perfeitamente na página)
-  const gridStartY = state.isEstagiario ? infoBoxY + infoBoxH + 15 : infoBoxY + infoBoxH + 6;
+  const gridStartY = state.isEstagiario ? infoBoxY + infoBoxH + 10 : infoBoxY + infoBoxH + 6;
   const availH = state.isEstagiario ? 520 : 435;
-  const headerRowsCount = state.isEstagiario ? 2 : 1;
+  const headerRowsCount = 1;
   const headerHeight = 20 * headerRowsCount;
   const obsHeight = 20;
   const dayRowHeight = (availH - headerHeight - obsHeight) / numDays;
 
-  // Variáveis para rastrear coordenadas da linha diagonal de bloqueio no PDF
   let blockStartX = 0, blockStartY = 0, blockEndX = 0, blockEndY = 0;
 
-  // Renderiza a tabela usando jsPDF-AutoTable
   doc.autoTable({
     startY: gridStartY,
     margin: { left: leftMargin, right: rightMargin },
@@ -771,7 +883,8 @@ function generatePDF() {
     tableWidth: usableW,
     styles: {
       font: "times",
-      fontSize: state.isEstagiario ? 10 : 7,
+      fontStyle: state.isEstagiario ? "bold" : "normal",
+      fontSize: state.isEstagiario ? 12 : 7,
       textColor: [0, 0, 0],
       lineColor: [0, 0, 0],
       lineWidth: 0.5,
@@ -781,7 +894,7 @@ function generatePDF() {
     },
     headStyles: {
       fontStyle: "bold",
-      fontSize: state.isEstagiario ? 10 : 6,
+      fontSize: state.isEstagiario ? 16 : 6,
       lineWidth: 0.8,
       lineColor: [0, 0, 0]
     },
@@ -801,14 +914,8 @@ function generatePDF() {
       7: { cellWidth: usableW * 0.08791 },
       8: { cellWidth: usableW * 0.15385 }
     },
-    // Monta o cabeçalho correto
     head: state.isEstagiario ? [
-      [
-        { content: "Dias", rowSpan: 2 },
-        { content: "Horário", colSpan: 2 },
-        { content: "Assinatura", rowSpan: 2 }
-      ],
-      ["Entrada", "Saída"]
+      ["Dia", "Entrada", "Saída", "Assinatura"]
     ] : [
       [
         "DIA", "HORA de\nEntrada", "ASSINATURA", 
@@ -818,28 +925,24 @@ function generatePDF() {
       ]
     ],
     body: tableData,
-    // Callback para definir as alturas de linhas exatas e fazer merge da linha de observação
     didParseCell: function(data) {
       if (data.row.index < headerRowsCount) {
         data.row.height = 20;
-      } else if (data.row.index === numDays + headerRowsCount) {
-        // Linha de Observações (Última linha)
+      } else if (!state.isEstagiario && data.row.index === numDays + headerRowsCount) {
         data.row.height = 20;
         if (data.column.index === 0) {
           data.cell.styles.halign = "left";
           data.cell.styles.valign = "top";
           data.cell.styles.cellPadding = { top: 2, left: 6 };
-          data.cell.colSpan = state.isEstagiario ? 4 : 9;
+          data.cell.colSpan = 9;
         }
       } else {
         data.row.height = dayRowHeight;
       }
     },
-    // Callback para desenhar bordas customizadas e rastrear coordenadas de bloqueio
     willDrawCell: function(data) {
-      const dayIndex = data.row.index - headerRowsCount + 1; // 1-indexed day of month
+      const dayIndex = data.row.index - headerRowsCount + 1;
       
-      // Captura as coordenadas do início e fim do bloco para desenhar a linha diagonal
       if (state.blockStart && state.blockEnd && dayIndex >= state.blockStart && dayIndex <= state.blockEnd) {
         const startColIndex = 1;
         const endColIndex = state.isEstagiario ? 3 : 8;
@@ -854,7 +957,6 @@ function generatePDF() {
         }
       }
     },
-    // Callback após desenhar a tabela, para desenhar a linha tracejada sobre ela
     didDrawPage: function(data) {
       if (state.blockStart && state.blockEnd && blockStartX && blockStartY && blockEndX && blockEndY) {
         doc.saveState();
@@ -866,8 +968,18 @@ function generatePDF() {
       }
     }
   });
+  
+  if (state.isEstagiario) {
+    const finalY = doc.lastAutoTable.finalY;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("OBS:", leftMargin, finalY + 15);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(state.obs, leftMargin + 26, finalY + 15);
+  }
 
-  // Salva o PDF com o nome adequado
   const mesString = MESES[state.mes - 1].toLowerCase();
   const nomeSanitizado = state.nome.toLowerCase().replace(/\s+/g, "_");
   const fileName = `livro_ponto_${nomeSanitizado}_${mesString}.pdf`;

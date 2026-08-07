@@ -38,6 +38,11 @@
           <h2 class="section-title">👤 1. Dados do Servidor</h2>
           
           <div class="input-group">
+            <label for="input-unidade">Unidade Escolar</label>
+            <input type="text" id="input-unidade" placeholder="Ex: EMEIEF PROFª MATILDE GUERRA COMÉRIO" value="EMEIEF “PROFª MATILDE GUERRA COMÉRIO”" autocomplete="off" required>
+          </div>
+          
+          <div class="input-group">
             <label for="input-nome">Nome Completo</label>
             <input type="text" id="input-nome" placeholder="Ex: GEOVANA GUNZ" autocomplete="off" required>
           </div>
@@ -122,14 +127,22 @@
             <!-- Tab: Feriados -->
             <div class="tab-pane active" id="tab-feriados">
               <p class="tab-help">Adicione feriados ou recessos específicos para este mês.</p>
-              <div class="feriado-add-row">
+              <div class="feriado-add-row" style="margin-bottom: 8px;">
                 <input type="number" id="input-dia-feriado" placeholder="Dia" min="1" max="31">
-                <select id="select-tipo-feriado">
-                  <option value="FERIADO">Feriado</option>
-                  <option value="RECESSO">Recesso</option>
-                </select>
+                <input type="text" id="input-tipo-feriado" list="default-tipos" placeholder="Tipo (ou digite)" style="flex: 2; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-main); font-size: 0.9rem; background-color: var(--card-bg); color: var(--text);">
+                <datalist id="default-tipos">
+                  <option value="FERIADO"></option>
+                  <option value="RECESSO ESCOLAR"></option>
+                  <option value="FÉRIAS ESCOLARES"></option>
+                  <option value="CONSELHO DE CLASSE"></option>
+                  <option value="JORNADA PEDAGÓGICA"></option>
+                </datalist>
                 <button type="button" id="btn-add-feriado" class="btn btn-secondary">Adicionar</button>
               </div>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 12px; cursor: pointer; color: var(--text-muted); font-family: var(--font-main);">
+                <input type="checkbox" id="checkbox-feriado-tracos">
+                Colocar traços (-----) na Entrada e Saída
+              </label>
               <div class="feriados-list-container">
                 <ul id="feriados-list" class="badge-list">
                   <!-- Badges de feriados serão inseridos aqui dinamicamente -->
@@ -213,6 +226,7 @@
                 <!-- O corpo da tabela será renderizado dinamicamente pelo JS -->
               </table>
             </div>
+            <div id="sheet-obs-container" class="sheet-obs-container"></div>
           </div>
         </div>
       </div>
